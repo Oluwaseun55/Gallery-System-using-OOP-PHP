@@ -1,32 +1,117 @@
-<?php require_once("includes/header.php"); ?>
+<!-- <?php require_once("admin/includes/init.php"); ?> -->
+
+<?php include("includes/header.php"); ?>
 
 <?php
 
-if(!$session->is_signed_in()){
-    redirect("login.php");
-    }
+$page = !empty($_GET['page']) ? (int)$_GET['page'] : 1;
+
+$items_per_page = 4;
+
+$items_total_count = Photo::count_all();
+
+$paginate = new Paginate($page, $items_per_page, $items_total_count); 
+
+$sql = "SELECT * FROM photos ";
+$sql .= "LIMIT {$items_per_page} ";
+$sql .= "OFFSET {$paginate->offset()}";
+$photos = Photo::find_by_query($sql);
+
+// $photos = Photo::find_all();
+
 ?>
 
 
+        <div class="row">
 
-        <!-- Navigation -->
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <!-- Brand and toggle get grouped for better mobile display -->
+            <!-- Blog Entries Column -->
+            <div class="col-md-8">
 
-            <?php include("includes/top_nav.php") ?>
+    
             
+          
+         
 
-            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            </div>
+
+
+
+
+            <!-- Blog Sidebar Widgets Column -->
+            <div class="col-md-12">
+            <div class = "thumbnails row">
+
            
-             <?php include("includes/side_nav.php")?>
-            <!-- /.navbar-collapse -->
-        </nav>
 
-        <div id="page-wrapper">
+            <?php foreach($photos as $photo):  ?>
 
-        <?php include("includes/admin_content.php")?>
            
+
+            <div class = "col-xs-6 col-md-3">
+
+              <a class="thumbnail" href="photo.php?id=<?php echo $photo->id; ?>">
+
+              <img  class ="home_page_photo img-responsive " src="admin/<?php echo $photo->picture_path(); ?>" alt="">
+              </a>
+            </div>
+
+               
+
+            
+             <?php endforeach; ?>  
+             
+             </div>
+
+             <div class="row">
+             
+             <ul class ="pager">
+              
+             <?php
+               
+               if($paginate->page_total() > 1) {
+
+                if($paginate->has_next()) {
+
+                  echo "<li class='next'><a href='index.php?page={$paginate->next()}'>Next</a></li>";
+
+                }
+
+
+
+                for ($i=1; $i<= $paginate->page_total();  $i++) { 
+                  
+                  if($i == $paginate->current_page){
+
+                    echo "<li class ='active'><a href='index.php?=page{$i}'>{$i}</a></li>";
+                  }
+                  else{
+                    echo "<li><a href='index.php?=page{$i}'>{$i}</a></li>";
+
+                  }
+                }
+
+
+
+                if($paginate->has_previous()) {
+
+                  echo "<li class='previous'><a href='index.php?page={$paginate->previous()}'>Previous</a></li>";
+
+                }
+               }
+
+               
+             ?>
+
+             
+              
+              <!-- <li class='previous'><a href=''>Previous</a></li> -->
+             </ul>
+
+             </div>
+
+
+
         </div>
-        <!-- /#page-wrapper -->
+        <!-- /.row -->
 
-  <?php include("includes/footer.php"); ?>
+        <?php include("includes/footer.php"); ?>
